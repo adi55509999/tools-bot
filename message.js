@@ -63,7 +63,7 @@ bot.on(`message`, async ctx => {
             btn.text(`Ubah XLSX ke VCF`, `convert_xlsxToVcf_${IDs}`)
         ]
 
-        console.log(doc.mime_type)
+        //console.log(doc.mime_type)
         prop.set(`files_` + IDs + chatID, `${doc.file_id},${doc.file_name},${doc.mime_type}`)
         prop.read(`session_convert_` + chatID)
         await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })

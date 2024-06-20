@@ -111,10 +111,10 @@ bot.on(`callback_query`, async ctx => {
 
                 await ctx.replyWithDocument({ source: outputFilePath }, { caption: `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`, parse_mode: 'HTML' });
                 try { await ctx.deleteMessage(pros.message_id) } catch { }
-                await fs.remove(filePath);
+                /*await fs.remove(filePath);
                 if (outputFilePath) {
                     await fs.remove(outputFilePath);
-                }
+                }*/
             } catch(e) {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
