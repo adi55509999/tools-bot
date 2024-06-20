@@ -9,6 +9,7 @@ const bot = new Telegraf(variables.token)
 bot.on(`message`, async ctx => {
     var chatID = ctx.chat.id
     var keyb = []
+    if (variables.userList.indexOf(chatID) == -1 ) return await ctx.replyWithHTML(`⚠️ This bot is not for you.`)
 
     var pola = /^\/start$/i
     if (pola.exec(ctx.message.text)) {

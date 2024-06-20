@@ -9,6 +9,8 @@ const axios = require('axios')
 bot.on(`callback_query`, async ctx => {
     try {
         var chatID = ctx.chat.id;
+        if (variables.userList.indexOf(chatID) == -1 ) return await ctx.answerCbQuery(`⚠️ This bot is not for you.`, { show_alert: true })
+
         var cb = ctx.callbackQuery;
         var data = await cb.data
         var cck;
