@@ -1,9 +1,9 @@
-const { bot } = require('../../callback.js')
+const { bot } = require('./callback.js')
 
 const http = require('http');
 const express = require('express')
 const { Server } = require('socket.io');
-const variable = require('../../variables.js');
+const variable = require('./variables.js');
 
 const app = express();
 const server = http.createServer(app);
