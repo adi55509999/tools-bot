@@ -1,4 +1,4 @@
-const { bot } = require('./callback.js')
+const { bot } = require('../../callback.jss')
 
 exports.handler = async req => {
     await bot.handleUpdate(JSON.parse(req.body))
@@ -8,8 +8,8 @@ exports.handler = async req => {
 /*const http = require('http');
 const express = require('express')
 const { Server } = require('socket.io');
-const variable = require('./variables.js');
-const helper = require('./components/helper/helper.js')
+const variable = require('../../variables.js');
+const helper = require('../../components/helper/helper.js')
 
 const app = express();
 const server = http.createServer(app);
