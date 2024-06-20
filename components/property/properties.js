@@ -1,4 +1,4 @@
 const proper = require('properties-reader')
-const prop = proper('./data.properties')
+const prop = proper('')
 
 module.exports = prop
