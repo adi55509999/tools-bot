@@ -1,4 +1,4 @@
-const { bot } = require('../../callback.jss')
+const { bot } = require('../../callback.js')
 
 exports.handler = async req => {
     await bot.handleUpdate(JSON.parse(req.body))
