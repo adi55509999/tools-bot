@@ -11,4 +11,11 @@ function efreofofi() {
     }
 }
 
-efreofofi()
+function fohuefohef() {
+    var n = Number('28282828')
+    console.log(n)
+    console.log(isNaN(n))
+    if (isNaN(n)) { console.log(`OK`) } else { console.log(`NO`) }
+}
+
+fohuefohef()

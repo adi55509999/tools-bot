@@ -47,6 +47,7 @@ bot.on(`message`, async ctx => {
     var getSesCon = prop.get(`session_convert_` + chatID)
     var getSesConMax = prop.get(`session_convertMaxContacts_` + chatID)
     var getSesConCus = prop.get(`session_convertCustomName_` + chatID)
+    var getSesConFile = prop.get(`session_convertFileNames_` + chatID)
 
     if (getSesCon) {
         var pros = await ctx.reply(`⏳ Memproses...`)
@@ -82,7 +83,32 @@ bot.on(`message`, async ctx => {
         var pros = await ctx.reply(`⏳ Memproses...`)
         var text = ctx.message.text
         if (!text || /\D+/gi.exec(text)) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Hanya format angka yang diizinkan.`)
-        if (Number(text) < 1 || Number(text) > variables.maxCon) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Hanya angka rentang 1 - 1000.`)
+        if (Number(text) < 1 || Number(text) > variables.maxCon) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Hanya angka rentang 1 - ${variables.maxCon}.`)
+        var ops = prop.get(`selection_` + IDs + chatID)
+
+        var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama file kustom yang Anda inginkan.`
+        keyb[0] = [
+            btn.text(`Lewati ⏩`, `convert_${ops}_${IDs}`)
+        ]
+        keyb[1] = [
+            btn.text(`❌ Batal`, `cancel_`)
+        ]
+
+        prop.set(`max_contacts_` + IDs + chatID, text)
+        prop.read(`session_convertMaxContacts_` + chatID)
+        prop.set(`skipFileNames_` + IDs + chatID, true)
+        prop.set(`session_convertFileNames_` + chatID, IDs)
+        await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+        return;
+    }
+
+    if (getSesConFile) {
+        var IDs = getSesConFile
+        var files = prop.get(`files_` + IDs + chatID)
+        if (!files) { prop.read(`session_convertStart_` + chatID); return }
+        var pros = await ctx.reply(`⏳ Memproses...`)
+        var text = ctx.message.text
+        if (text.length < 1 || text.length > variables.maxCusFile) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Jumlah karakter pada nama file harus rentang dari 1 - variables.maxCusFile karakter.`)
         var ops = prop.get(`selection_` + IDs + chatID)
 
         var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
@@ -93,12 +119,11 @@ bot.on(`message`, async ctx => {
             btn.text(`❌ Batal`, `cancel_`)
         ]
 
-        prop.set(`max_contacts_` + IDs + chatID, text)
+        prop.set(`custom_file_` + IDs + chatID, text)
+        prop.read(`session_convertFileNames_` + chatID)
         prop.set(`skipCustomName_` + IDs + chatID, true)
-        prop.read(`session_convertMaxContacts_` + chatID)
         prop.set(`session_convertCustomName_` + chatID, IDs)
         await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
-        return;
     }
 
     if (getSesConCus) {
@@ -120,30 +145,30 @@ bot.on(`message`, async ctx => {
             await fs.writeFile(filePath, response.data);
             var outputFilePath;
             var getMaxContacts = prop.get(`max_contacts_` + IDs + chatID)
-            var maxContacts = getMaxContacts ? Number(getMaxContacts) : 100
+            var maxContacts = getMaxContacts ? Number(getMaxContacts) : variables.maxCon
 
             if (ops == `csvToVcf`) {
                 outputFilePath = filePath.replace('.csv', '.vcf');
                 var extensi = `VCF`
-                var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts, text);
+                var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, text);
             }
 
             if (ops == `txtToVcf`) {
                 outputFilePath = filePath.replace('.txt', '.vcf');
                 var extensi = `VCF`
-                var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, text);
+                var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, text);
             }
 
             if (ops == `vcfToCsv`) {
                 outputFilePath = filePath.replace('.vcf', '.csv');
                 var extensi = `CSV`
-                var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath, maxContacts, text);
+                var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath);
             }
 
             if (ops == `xlsxToVcf`) {
                 outputFilePath = filePath.replace('.xlsx', '.vcf');
                 var extensi = `VCF`
-                var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, text);
+                var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, text);
             }
 
             var fileLength = fileConverted.length
@@ -154,17 +179,24 @@ bot.on(`message`, async ctx => {
                 var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
             }
 
+            await fs.remove(filePath);
             for (const file of fileConverted) {
                 count++;
-                if (count == fileLength) {
+                if (fileLength == 1) {
                     await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
                 } else {
-                    await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
+                    if (count == fileLength) {
+                        await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
+                    } else {
+                        await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
+                    }
                 }
                 await fs.remove(file)
             }
-            await fs.remove(filePath);
             try { await ctx.deleteMessage(pros.message_id) } catch { }
+            prop.read(`skipMaxContacts_` + chatID)
+            prop.read(`skipFileNames_` + chatID)
+            prop.read(`skipCustomName_` + chatID)
         } catch (e) {
             console.log(e)
             var pesan = `❌ <b>Error!</b>\n${e.message}`

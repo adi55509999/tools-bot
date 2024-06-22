@@ -83,7 +83,7 @@ bot.on(`callback_query`, async ctx => {
 
                 if (!prop.get(`skipMaxContacts_` + IDs + chatID)) {
                     var pesan = `❇️ <b>Oke!</b>\nMasukkan jumlah kontak per-file yang Anda inginkan, jika ini dilewati, maka akan menggunakan bawaan ${variables.maxCon} kontak per-file.`
-                    pesan += `\n\nℹ️ Anda hanya bisa menggunakan angka rentang 1 - 1000.`
+                    pesan += `\n\nℹ️ Anda hanya bisa menggunakan angka rentang 1 - ${variables.maxCon}.`
                     keyb[0] = [
                         btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
                     ]
@@ -99,6 +99,23 @@ bot.on(`callback_query`, async ctx => {
                     return;
                 }
 
+                if (!prop.get(`skipFileNames_` + IDs + chatID)) {
+                    var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama file kustom yang Anda inginkan.`
+                    keyb[0] = [
+                        btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
+                    ]
+                    keyb[1] = [
+                        btn.text(`❌ Batal`, `cancel_`)
+                    ]
+
+                    await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+                    await ctx.answerCbQuery('')
+                    prop.read(`session_convertMaxContacts_` + chatID)
+                    prop.set(`skipFileNames_` + IDs + chatID, true)
+                    prop.set(`session_convertFileNames_` + chatID, IDs)
+                    return;
+                }
+
                 if (!prop.get(`skipCustomName_` + IDs + chatID)) {
                     var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
                     keyb[0] = [
@@ -110,7 +127,7 @@ bot.on(`callback_query`, async ctx => {
 
                     await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
                     await ctx.answerCbQuery('')
-                    prop.read(`session_convertMaxContacts_` + chatID)
+                    prop.read(`session_convertFileNames_` + chatID)
                     prop.set(`skipCustomName_` + IDs + chatID, true)
                     prop.set(`session_convertCustomName_` + chatID, IDs)
                     return;
@@ -130,25 +147,25 @@ bot.on(`callback_query`, async ctx => {
                 if (type == `csvToVcf`) {
                     outputFilePath = filePath.replace('.csv', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts);
+                    var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
                 }
 
                 if (type == `txtToVcf`) {
                     outputFilePath = filePath.replace('.txt', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts);
+                    var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
                 }
 
                 if (type == `vcfToCsv`) {
                     outputFilePath = filePath.replace('.vcf', '.csv');
                     var extensi = `CSV`
-                    var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath, maxContacts);
+                    var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath);
                 }
 
                 if (type == `xlsxToVcf`) {
                     outputFilePath = filePath.replace('.xlsx', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts);
+                    var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
                 }
 
                 var fileLength = fileConverted.length
@@ -159,17 +176,24 @@ bot.on(`callback_query`, async ctx => {
                     var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
                 }
 
+                await fs.remove(filePath);
                 for (const file of fileConverted) {
                     count++;
-                    if (count == fileLength) {
+                    if (fileLength == 1) {
                         await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
                     } else {
-                        await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
+                        if (count == fileLength) {
+                            await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
+                        } else {
+                            await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
+                        }
                     }
                     await fs.remove(file)
                 }
-                await fs.remove(filePath);
                 try { await ctx.deleteMessage(pros.message_id) } catch { }
+                prop.read(`skipMaxContacts_` + chatID)
+                prop.read(`skipFileNames_` + chatID)
+                prop.read(`skipCustomName_` + chatID)
             } catch(e) {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
@@ -180,6 +204,7 @@ bot.on(`callback_query`, async ctx => {
                 prop.read(`session_convert_` + chatID)
                 prop.read(`session_convertMaxContacts_` + chatID)
                 prop.read(`session_convertCustomName_` + chatID)
+                prop.read(`session_convertFileNames_` + chatID)
                 await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
             }
             return;
