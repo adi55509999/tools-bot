@@ -73,7 +73,6 @@ async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chat
         fs.createReadStream(csvFilePath)
             .pipe(csv())
             .on('data', (row) => {
-                index++;
                 contacts.push(row);
                 if (contacts.length === maxContacts) {
                     var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
