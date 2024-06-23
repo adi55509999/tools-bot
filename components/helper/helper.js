@@ -39,10 +39,12 @@ async function createID(length) {
 function writeContactsToVCF(contacts, vcfFilePath, customName) {
     var datas = ''
 
-    contacts.map(contact => {
+    contacts.map((contact, index) => {
+        if (customName) { var ccnt = (index + 1 == 1) ? `${customName}` : `${customName} ${index + 1}` } else { var ccnt = contact.name ? contact.name : `Contact ${index + 1}` }
+
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
-        if ((!contact.name && customName) || (contact.name && customName)) { datas += `N:${customName}\n` } else if (contact.name && !customName) { datas += `N:${contact.name}\n` } else if (!contact.name && !customName) { datas += `` }
+        datas += `N:${ccnt}\n`
         datas += `TEL;TYPE=CELL:${contact.phone}\n`
         datas += `END:VCARD\n`;
     })
@@ -71,6 +73,7 @@ async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chat
         fs.createReadStream(csvFilePath)
             .pipe(csv())
             .on('data', (row) => {
+                index++;
                 contacts.push(row);
                 if (contacts.length === maxContacts) {
                     var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
@@ -228,7 +231,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
         contacts.push(contact);
 
         if (contacts.length === maxContacts) {
-            const newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
+            var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
             writeContactsToVCF(contacts, newVcfFilePath, customName);
             generatedFiles.push(newVcfFilePath);
             contacts.length = 0;
@@ -237,7 +240,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
     });
 
     if (contacts.length > 0) {
-        const newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
+        var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
         writeContactsToVCF(contacts, newVcfFilePath, customName);
         generatedFiles.push(newVcfFilePath);
     }
