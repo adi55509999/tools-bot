@@ -115,7 +115,7 @@ bot.on(`message`, async ctx => {
             if (!files) { prop.read(`session_convertFileNames_` + chatID); return }
             var pros = await ctx.reply(`⏳ Memproses...`)
             var text = ctx.message.text
-            if (text.length < 1 || text.length > variables.maxCusFile) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Jumlah karakter pada nama file harus rentang dari 1 - variables.maxCusFile karakter.`)
+            if (text.length < 1 || text.length > variables.maxCusFile) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Jumlah karakter pada nama file harus rentang dari 1 - ${variables.maxCusFile} karakter.`)
             var ops = prop.get(`selection_` + IDs + chatID)
 
             var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
