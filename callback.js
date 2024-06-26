@@ -9,7 +9,7 @@ const axios = require('axios')
 bot.on(`callback_query`, async ctx => {
     try {
         var chatID = ctx.chat.id;
-        if (variables.userList.indexOf(chatID) == -1 ) return await ctx.answerCbQuery(`⚠️ This bot is not for you.`, { show_alert: true })
+        if (variables.userList.indexOf(chatID) == -1 ) return await ctx.answerCbQuery(`⚠️ You're not authorized.`, { show_alert: true })
 
         var cb = ctx.callbackQuery;
         var data = await cb.data
@@ -20,6 +20,7 @@ bot.on(`callback_query`, async ctx => {
             prop.read(`session_convert_` + chatID)
             prop.read(`session_convertMaxContacts_` + chatID)
             prop.read(`session_convertCustomName_` + chatID)
+            prop.read(`session_convertFileNames_` + chatID)
             await ctx.editMessageText(`❌ Dibatalkan.`)
             return;
         }
@@ -194,6 +195,9 @@ bot.on(`callback_query`, async ctx => {
                 prop.read(`skipMaxContacts_` + chatID)
                 prop.read(`skipFileNames_` + chatID)
                 prop.read(`skipCustomName_` + chatID)
+                prop.read(`session_convertMaxContacts_` + chatID)
+                prop.read(`session_convertCustomName_` + chatID)
+                prop.read(`session_convertFileNames_` + chatID)
             } catch(e) {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
