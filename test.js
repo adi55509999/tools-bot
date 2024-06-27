@@ -1,3 +1,6 @@
+const helper = require('./components/helper/helper.js')
+const fs = require('fs-extra')
+
 function efreofofi() {
     var data = ['a', 'b']
     var c = 0
@@ -18,4 +21,10 @@ function fohuefohef() {
     if (isNaN(n)) { console.log(`OK`) } else { console.log(`NO`) }
 }
 
-fohuefohef()
+function heifhee() {
+    var con = fs.readFileSync('./downloads/contact.vcf', 'utf-8')
+    console.log(con)
+    helper.splitVCF(con, 2)
+}
+
+heifhee()

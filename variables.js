@@ -3,12 +3,14 @@ const adminBot = 1434949478
 const userList = [ 5790165296, 1434949478 ]
 const maxCon = 1000
 const maxCusFile = 100
+const defaultIndex = 1
 
 const variables = {
     token,
     adminBot,
     userList,
     maxCon,
-    maxCusFile
+    maxCusFile,
+    defaultIndex
 }
 module.exports = variables

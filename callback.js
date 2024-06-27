@@ -21,6 +21,7 @@ bot.on(`callback_query`, async ctx => {
             prop.read(`session_convertMaxContacts_` + chatID)
             prop.read(`session_convertCustomName_` + chatID)
             prop.read(`session_convertFileNames_` + chatID)
+            prop.read(`session_convertCustomIndex_` + chatID)
             await ctx.editMessageText(`❌ Dibatalkan.`)
             return;
         }
@@ -50,17 +51,21 @@ bot.on(`callback_query`, async ctx => {
                 var mimeType = doc[2].toLowerCase()
 
                 if (type.includes('csvToVcf')) {
-                    if (mimeType !== 'text/csv') { var r = false; var act = `CSV ke VCF` } else { var r = true }
+                    if (mimeType !== 'text/csv') { var r = false; var act = `mengubah CSV ke VCF` } else { var r = true }
                 } else if (type.includes('txtToVcf')) {
-                    if (mimeType !== 'text/plain') { var r = false; var act = `TXT ke VCF` } else { var r = true }
-                } else if (type.includes('vcfToCsv')) {
-                    if (mimeType !== 'text/x-vcard') { var r = false; var act = `VCF ke CSV` } else { var r = true }
-                } else if (type.includes('xlsxToVcf')) {
-                    if (mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') { var r = false; var act = `XLSX ke VCF` } else { var r = true }
+                    if (mimeType !== 'text/plain') { var r = false; var act = `mengubah TXT ke VCF` } else { var r = true }
+                } /*else if (type.includes('vcfToCsv')) {
+                    if (!/(text\/x-vcard|text\/vcard)/i.exec(mimeType)) { var r = false; var act = `VCF ke CSV` } else { var r = true }
+                }*/ else if (type.includes('xlsxToVcf')) {
+                    if (mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') { var r = false; var act = `mengubah XLSX ke VCF` } else { var r = true }
+                } /*else if (type.includes('vcfToTxt')) {
+                    if (!/(text\/x-vcard|text\/vcard)/i.exec(mimeType)) { var r = false; var act = `VCF ke TXT` } else { var r = true }
+                }*/ else if (type.includes('trimVcf')) {
+                    if (!/(text\/x-vcard|text\/vcard)/i.exec(mimeType)) { var r = false; var act = `memecah file VCF`; var sec = 2 } else { var r = true }
                 }
 
                 if (r == false) {
-                    await ctx.answerCbQuery(`⚠️ Ekstensi Tidak Valid!\nJika Anda ingin mengubah ${act}, maka kirimkan file dengan ekstensi ${act.split(' ')[0]}.`, { show_alert: true })
+                    await ctx.answerCbQuery(`⚠️ Ekstensi Tidak Valid!\nJika Anda ingin ${act}, maka kirimkan file dengan ekstensi ${act.split(' ')[sec ? sec : 1]}.`, { show_alert: true })
                     
                     var pesan = `❇️ <b>Oke!</b>`
                     pesan += `\nManakah dari opsi dibawah ini yang Anda inginkan?`
@@ -70,12 +75,18 @@ bot.on(`callback_query`, async ctx => {
                     keyb[1] = [
                         btn.text(`Ubah TXT ke VCF`, `convert_txtToVcf_${IDs}`)
                     ]
-                    keyb[2] = [
+                    /*keyb[2] = [
                         btn.text(`Ubah VCF ke CSV`, `convert_vcfToCsv_${IDs}`)
-                    ]
-                    keyb[3] = [
+                    ]*/
+                    keyb[2] = [
                         btn.text(`Ubah XLSX ke VCF`, `convert_xlsxToVcf_${IDs}`)
                     ]
+                    keyb[3] = [
+                        btn.text(`Bagi File VCF`, `convert_trimVcf_${IDs}`)
+                    ]
+                    /*keyb[4] = [
+                        btn.text(`Ubah VCF ke TXT`, `convert_vcfToTxt_${IDs}`)
+                    ]*/
 
                     await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
                     await ctx.answerCbQuery('')
@@ -83,23 +94,29 @@ bot.on(`callback_query`, async ctx => {
                 }
 
                 if (!prop.get(`skipMaxContacts_` + IDs + chatID)) {
-                    var pesan = `❇️ <b>Oke!</b>\nMasukkan jumlah kontak per-file yang Anda inginkan, jika ini dilewati, maka akan menggunakan bawaan ${variables.maxCon} kontak per-file.`
+                    var pesan = `❇️ <b>Oke!</b>\nMasukkan jumlah kontak per-file yang Anda inginkan. ${(type == 'trimVcf') ? `Anda tidak dapat melewati bagian ini` : `Jika ini dilewati, maka akan menggunakan bawaan ${variables.maxCon} kontak per-file.`}`
                     pesan += `\n\nℹ️ Anda hanya bisa menggunakan angka rentang 1 - ${variables.maxCon}.`
-                    keyb[0] = [
-                        btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
-                    ]
-                    keyb[1] = [
-                        btn.text(`❌ Batal`, `cancel_`)
-                    ]
+                    if (type !== 'trimVcf') {
+                        keyb[0] = [
+                            btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
+                        ]
+                        keyb[1] = [
+                            btn.text(`❌ Batal`, `cancel_`)
+                        ]
+                    } else {
+                        keyb[0] = [
+                            btn.text(`❌ Batal`, `cancel_`)
+                        ]
+                    }
 
                     await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
                     await ctx.answerCbQuery('')
                     prop.set(`skipMaxContacts_` + IDs + chatID, true)
-                    prop.set(`selection_` + IDs + chatID, type.split('-')[0])
+                    prop.set(`selection_` + IDs + chatID, type)
                     prop.set(`session_convertMaxContacts_` + chatID, IDs)
                     return;
                 }
-
+    
                 if (!prop.get(`skipFileNames_` + IDs + chatID)) {
                     var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama file kustom yang Anda inginkan.`
                     keyb[0] = [
@@ -117,24 +134,44 @@ bot.on(`callback_query`, async ctx => {
                     return;
                 }
 
-                if (!prop.get(`skipCustomName_` + IDs + chatID)) {
-                    var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
-                    keyb[0] = [
-                        btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
-                    ]
-                    keyb[1] = [
-                        btn.text(`❌ Batal`, `cancel_`)
-                    ]
+                if (type !== 'trimVcf') {
+                    if (!prop.get(`skipCustomName_` + IDs + chatID)) {
+                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
+                        keyb[0] = [
+                            btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
+                        ]
+                        keyb[1] = [
+                            btn.text(`❌ Batal`, `cancel_`)
+                        ]
+    
+                        await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+                        await ctx.answerCbQuery('')
+                        prop.read(`session_convertFileNames_` + chatID)
+                        prop.set(`skipCustomName_` + IDs + chatID, true)
+                        prop.set(`session_convertCustomName_` + chatID, IDs)
+                        return;
+                    }
 
-                    await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
-                    await ctx.answerCbQuery('')
-                    prop.read(`session_convertFileNames_` + chatID)
-                    prop.set(`skipCustomName_` + IDs + chatID, true)
-                    prop.set(`session_convertCustomName_` + chatID, IDs)
-                    return;
+                    if (!prop.get(`skipCustomIndex_` + IDs + chatID)) {
+                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama kontak. Jika Anda tidak mengatur ini, maka indexing nama akan dimulai pada angka 1.`
+                        pesan += `\n\n⚠️ Catatan: Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <b>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</b>.`
+                        keyb[0] = [
+                            btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
+                        ]
+                        keyb[1] = [
+                            btn.text(`❌ Batal`, `cancel_`)
+                        ]
+
+                        await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+                        await ctx.answerCbQuery('')
+                        prop.read(`session_convertFileNames_` + chatID)
+                        prop.set(`skipCustomIndex_` + IDs + chatID, true)
+                        prop.set(`session_convertCustomIndex_` + chatID, IDs)
+                        return;
+                    }
                 }
 
-                prop.read(`session_convertCustomName_` + chatID)
+                prop.read(`session_convertCustomIndex_` + chatID)
                 var fileLink = (await bot.telegram.getFileLink(doc[0])).href
                 var filePath = path.join(__dirname, 'downloads', doc[1]);
                 fs.ensureDirSync(path.dirname(filePath));
@@ -157,11 +194,11 @@ bot.on(`callback_query`, async ctx => {
                     var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
                 }
 
-                if (type == `vcfToCsv`) {
+                /*if (type == `vcfToCsv`) {
                     outputFilePath = filePath.replace('.vcf', '.csv');
                     var extensi = `CSV`
-                    var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath);
-                }
+                    var fileConverted = await helper.convertVCFtoCSV(filePath, outputFilePath, prop, chatID, IDs);
+                }*/
 
                 if (type == `xlsxToVcf`) {
                     outputFilePath = filePath.replace('.xlsx', '.vcf');
@@ -169,16 +206,36 @@ bot.on(`callback_query`, async ctx => {
                     var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
                 }
 
-                var fileLength = fileConverted.length
+                /*if (type == 'vcfToTxt') {
+                    outputFilePath = filePath.replace('.vcf', '.txt');
+                    var extensi = `TXT`
+                    var fileConverted = await helper.convertVCFtoTXT(filePath, outputFilePath, prop, chatID, IDs);
+                }*/
+
+                if (type == 'trimVcf') {
+                    var extensi = `VCF`
+                    var fileSplit = await helper.splitVCF(filePath, doc[1], maxContacts, prop, chatID, IDs)
+                }
+
+                var fileExist = fileConverted ? fileConverted : fileSplit
+                var fileLength = fileExist.length
                 var count = 0
-                if (fileLength == 1) {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`
+                if (type !== 'trimVcf') {
+                    if (fileLength == 1) {
+                        var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`
+                    } else {
+                        var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
+                    }
                 } else {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
+                    if (fileLength == 1) {
+                        var caps = `✅ <b>Well Done!</b>\nBerhasil membagi ${doc[1]} menjadi ${fileLength} file.`
+                    } else {
+                        var caps = `✅ <b>Well Done!</b>\nBerhasil membagi semua file menjadi ${fileLength} file.`
+                    }
                 }
 
                 await fs.remove(filePath);
-                for (const file of fileConverted) {
+                for (const file of fileExist) {
                     count++;
                     if (fileLength == 1) {
                         await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
@@ -192,12 +249,14 @@ bot.on(`callback_query`, async ctx => {
                     await fs.remove(file)
                 }
                 try { await ctx.deleteMessage(pros.message_id) } catch { }
-                prop.read(`skipMaxContacts_` + chatID)
-                prop.read(`skipFileNames_` + chatID)
-                prop.read(`skipCustomName_` + chatID)
+                prop.read(`skipMaxContacts_` + IDs + chatID)
+                prop.read(`skipFileNames_` + IDs + chatID)
+                prop.read(`skipCustomName_` + IDs + chatID)
+                prop.read(`skipCustomIndex_` + IDs + chatID)
                 prop.read(`session_convertMaxContacts_` + chatID)
                 prop.read(`session_convertCustomName_` + chatID)
                 prop.read(`session_convertFileNames_` + chatID)
+                prop.read(`session_convertCustomIndex_` + chatID)
             } catch(e) {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
@@ -209,6 +268,7 @@ bot.on(`callback_query`, async ctx => {
                 prop.read(`session_convertMaxContacts_` + chatID)
                 prop.read(`session_convertCustomName_` + chatID)
                 prop.read(`session_convertFileNames_` + chatID)
+                prop.read(`session_convertCustomIndex_` + chatID)
                 await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
             }
             return;
