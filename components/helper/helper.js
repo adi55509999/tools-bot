@@ -209,8 +209,10 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
             var toNumber = Number(name)
             if (isNaN(toNumber) == false) {
                 var phn = name
-            } else {
+            } else if (String(name).startsWith('+')) {
                 var phn = name
+            } else {
+                var phn = ''
             }
         } else {
             var phn = phone

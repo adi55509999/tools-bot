@@ -154,7 +154,7 @@ bot.on(`callback_query`, async ctx => {
 
                     if (!prop.get(`skipCustomIndex_` + IDs + chatID)) {
                         var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama kontak. Jika Anda tidak mengatur ini, maka indexing nama akan dimulai pada angka 1.`
-                        pesan += `\n\n⚠️ Catatan: Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <b>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</b>.`
+                        pesan += `\n\n⚠️ <b>Catatan:</b> Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <u>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</u>.`
                         keyb[0] = [
                             btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
                         ]
@@ -234,7 +234,8 @@ bot.on(`callback_query`, async ctx => {
                     }
                 }
 
-                await fs.remove(filePath);
+                await fs.promises.unlink(filePath);
+                await fs.remove(filePath)
                 for (const file of fileExist) {
                     count++;
                     if (fileLength == 1) {
@@ -246,6 +247,7 @@ bot.on(`callback_query`, async ctx => {
                             await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
                         }
                     }
+                    await fs.promises.unlink(file)
                     await fs.remove(file)
                 }
                 try { await ctx.deleteMessage(pros.message_id) } catch { }

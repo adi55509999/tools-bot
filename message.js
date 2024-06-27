@@ -199,7 +199,7 @@ bot.on(`message`, async ctx => {
             var ops = prop.get(`selection_` + IDs + chatID)
 
             var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama kontak. Jika Anda tidak mengatur ini, maka indexing nama akan dimulai pada angka 1.`
-            pesan += `\n\n⚠️ Catatan: Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama.`
+            pesan += `\n\n⚠️ <b>Catatan:</b> Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <u>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</u>.`
             keyb[0] = [
                 btn.text(`Lewati ⏩`, `convert_${ops}_${IDs}`)
             ]
