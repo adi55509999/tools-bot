@@ -257,7 +257,7 @@ async function splitVCF(filePath, fileName, chunkSize, prop, chatID, IDs) {
         chunks.push(vcards.slice(i, i + chunkSize).join(''));
     }
 
-    var cusFile = prop.get(`custom_file_` + chatID + IDs) ? prop.get(`custom_file_` + chatID + IDs) : fileName
+    var cusFile = prop.get(`custom_file_` + IDs + chatID) ? prop.get(`custom_file_` + IDs + chatID) : fileName
     var outputDir = 'downloads'
     var filePaths = []
     chunks.forEach((chunk, index) => {
