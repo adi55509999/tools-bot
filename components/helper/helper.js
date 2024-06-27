@@ -39,7 +39,7 @@ async function createID(length) {
 function writeContactsToVCF(contacts, vcfFilePath, customName, prop, IDs, chatID) {
     var datas = ''
     var customIndex = prop.get(`custom_index_` + IDs + chatID)
-    var idx = customIndex ? Number(customIndex) : 1
+    var idx = customIndex ? Number(customIndex) : 0
 
     contacts.map(contact => {
         idx++
