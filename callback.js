@@ -26,6 +26,11 @@ bot.on(`callback_query`, async ctx => {
             return;
         }
 
+        if (/close_$/i.exec(data)) {
+            try { await ctx.deleteMessage(ctx.message?.message_id) } catch { }
+            return;
+        }
+
         if (cck = /convert_(.+)_(.+)/i.exec(data)) {
             var type = cck[1]
             var IDs = cck[2]
@@ -153,8 +158,7 @@ bot.on(`callback_query`, async ctx => {
                     }
 
                     if (!prop.get(`skipCustomIndex_` + IDs + chatID)) {
-                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama kontak. Jika Anda tidak mengatur ini, maka indexing nama akan dimulai pada angka 1.`
-                        pesan += `\n\n⚠️ <b>Catatan:</b> Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <u>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</u>.`
+                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama file. Jika Anda tidak mengatur ini, maka indexing nama file akan dimulai pada angka 1.`
                         keyb[0] = [
                             btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
                         ]

@@ -15,8 +15,31 @@ bot.on(`message`, async ctx => {
         var keyb = []
         if (variables.userList.indexOf(chatID) == -1) return await ctx.replyWithHTML(`⚠️ You're not authorized.`)
 
+        /**
+         * SESSION PROPERTY
+         * DO NOT DELETE OR CHANGE THIS FUNCTION WITHOUT AUTHORIZATION
+         */
+        var getSesCon = prop.get(`session_convert_` + chatID)
+        var getSesConMax = prop.get(`session_convertMaxContacts_` + chatID)
+        var getSesConCus = prop.get(`session_convertCustomName_` + chatID)
+        var getSesConFile = prop.get(`session_convertFileNames_` + chatID)
+        var getSesCusInd = prop.get(`session_convertCustomIndex_` + chatID)
+        /**
+         * END OF SESSION PROPERTY
+         */
+
         var pola = /^\/start$/i
         if (pola.exec(ctx.message.text)) {
+            if (getSesCon || getSesConMax || getSesConCus || getSesConFile || getSesCusInd) {
+                var pesan = `⚠️ <b>Peringatan!</b>\nAnda masih berada dalam sesi. Batalkan?`
+                keyb[0] = [
+                    btn.text(`✅ Ya`, `cancel_`),
+                    btn.text(`❌ Tidak`, `close_`)
+                ]
+                await ctx.replyWithHTML(pesan, { reply_markup: markup.inlineKeyboard(keyb) })
+                return;
+            }
+
             var pesan = `👋 Hai ${await helper.getName(ctx)}! Selamat datang di bot ini. Saya dapat membantu Anda dalam melakukan hal berikut:`
             pesan += `\n👉 Mengubah CSV ke VCF.`
             pesan += `\n👉 Mengubah TXT ke VCF.`
@@ -36,6 +59,16 @@ bot.on(`message`, async ctx => {
 
         var pola = /^\/convert$/i
         if (pola.exec(ctx.message.text)) {
+            if (getSesCon || getSesConMax || getSesConCus || getSesConFile || getSesCusInd) {
+                var pesan = `⚠️ <b>Peringatan!</b>\nAnda masih berada dalam sesi. Batalkan?`
+                keyb[0] = [
+                    btn.text(`✅ Ya`, `cancel_`),
+                    btn.text(`❌ Tidak`, `close_`)
+                ]
+                await ctx.replyWithHTML(pesan, { reply_markup: markup.inlineKeyboard(keyb) })
+                return;
+            }
+
             var pesan = `❇️ Kirimkan saya dokumen yang ingin Anda konversikan atau bagi.`
             keyb[0] = [
                 btn.text(`❌ Batal`, `cancel_`)
@@ -43,22 +76,13 @@ bot.on(`message`, async ctx => {
 
             await ctx.replyWithHTML(pesan, { reply_markup: markup.inlineKeyboard(keyb) })
             prop.set(`session_convert_` + chatID, true)
-            prop.read(`skipMaxContacts_` + chatID)
-            prop.read(`skipFileNames_` + chatID)
-            prop.read(`skipCustomName_` + chatID)
-            prop.read(`session_convertMaxContacts_` + chatID)
-            prop.read(`session_convertCustomName_` + chatID)
-            prop.read(`session_convertFileNames_` + chatID)
-            prop.read(`session_convertCustomIndex_` + chatID)
             return;
         }
 
-        // SESSION
-        var getSesCon = prop.get(`session_convert_` + chatID)
-        var getSesConMax = prop.get(`session_convertMaxContacts_` + chatID)
-        var getSesConCus = prop.get(`session_convertCustomName_` + chatID)
-        var getSesConFile = prop.get(`session_convertFileNames_` + chatID)
-        var getSesCusInd = prop.get(`session_convertCustomIndex_` + chatID)
+        /**
+         * SESSION SECTION
+         * DO NOT DELETE OR CHANGE THIS FUNCTION WITHOUT AUTHORIZATION
+         */
 
         if (getSesCon) {
             var pros = await ctx.reply(`⏳ Memproses...`)
@@ -198,8 +222,7 @@ bot.on(`message`, async ctx => {
             if (!text) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Hanya mendukung format teks.`)
             var ops = prop.get(`selection_` + IDs + chatID)
 
-            var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama kontak. Jika Anda tidak mengatur ini, maka indexing nama akan dimulai pada angka 1.`
-            pesan += `\n\n⚠️ <b>Catatan:</b> Ini hanya akan bekerja jika Anda mengatur nama kustom atau jika file Anda tidak memiliki field nama dan <u>jika Anda ingin memulai dari 3 maka Anda harus menggunakan angka 2, begitu juga seterusnya</u>.`
+            var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama file. Jika Anda tidak mengatur ini, maka indexing nama file akan dimulai pada angka 1.`
             keyb[0] = [
                 btn.text(`Lewati ⏩`, `convert_${ops}_${IDs}`)
             ]
@@ -311,6 +334,9 @@ bot.on(`message`, async ctx => {
                 await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
             }
         }
+        /**
+         * END OF SESSION SECTION
+         */
     } catch(e) {
         console.log(e)
     }
