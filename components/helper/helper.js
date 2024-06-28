@@ -266,9 +266,9 @@ const helper = {
     convertTXTtoVCF,
     convertXLSXtoVCF,
     splitVCF,
+    sendFile,
     getName,
     clearHTML,
-    createID,
-    sendFile
+    createID
 }
 module.exports = helper

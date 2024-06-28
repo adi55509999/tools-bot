@@ -248,7 +248,6 @@ bot.on(`callback_query`, async ctx => {
             return;
         }
     } catch (e) {
-        console.log(e)
         var pesan = `❌ <b>Error!</b>\n${e.message}`
         await ctx.editMessageText(pesan, { parse_mode: 'HTML' })
     }

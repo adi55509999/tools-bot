@@ -1,7 +1,7 @@
-/**
- * THESE FEATURES WAS CANCELLED.
- */
-/*async function convertVCFtoCSV(vcfFilePath, csvFilePath, prop, chatID, IDs, customName = null) {
+
+THESE FEATURES WAS CANCELLED.
+
+async function convertVCFtoCSV(vcfFilePath, csvFilePath, prop, chatID, IDs, customName = null) {
     var data = await fs.readFile(vcfFilePath, 'utf-8');
     var vCards = new VCard().parse(data);
     var contacts = [];
@@ -67,4 +67,4 @@ async function convertVCFtoTXT(vcfFilePath, txtFilePath, prop, chatID, IDs, cust
     var finalTxtFilePath = cusFile ? path.join(path.dirname(txtFilePath), cusFile) : txtFilePath;
 
     await fs.promises.writeFile(finalTxtFilePath, txtData, 'utf-8');
-}*/
+}

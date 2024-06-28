@@ -268,7 +268,6 @@ bot.on(`message`, async ctx => {
 
                 await helper.sendFile(fileConverted, filePath, ctx, pros.message_id, ops, extensi, doc, chatID, IDs, prop)
             } catch (e) {
-                console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
                 keyb[0] = [
                     btn.text(`🔄 Ulangi`, `conver_start`)
@@ -286,7 +285,8 @@ bot.on(`message`, async ctx => {
          * END OF SESSION SECTION
          */
     } catch(e) {
-        console.log(e)
+        var pesan = `❌ <b>Error!</b>\n${e.message}`
+        await ctx.replyWithHTML(pesan)
     }
 })
 
