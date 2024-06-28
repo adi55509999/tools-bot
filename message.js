@@ -47,6 +47,7 @@ bot.on(`message`, async ctx => {
             pesan += `\n👉 Membagi VCF menjadi beberapa file.`
             pesan += `\n👉 Konversi dengan nama kontak kustom.`
             pesan += `\n👉 Konversi dengan nama file kustom.`
+            pesan += `\n👉 Konversi dengan kustom index pada file.`
             pesan += `\n\n❔<b>Tata Cara</b>`
             pesan += `\nMulailah dengan menekan tombol dibawah atau mengirim perintah /convert dan kirimkan file yang ingin Anda konversikan.`
             keyb[0] = [
@@ -222,7 +223,7 @@ bot.on(`message`, async ctx => {
             if (!text) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Hanya mendukung format teks.`)
             var ops = prop.get(`selection_` + IDs + chatID)
 
-            var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama file. Jika Anda tidak mengatur ini, maka indexing nama file akan dimulai pada angka 1.`
+            var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing pada file. Jika Anda tidak mengatur ini, maka indexing pada file akan dimulai pada angka 1.`
             keyb[0] = [
                 btn.text(`Lewati ⏩`, `convert_${ops}_${IDs}`)
             ]

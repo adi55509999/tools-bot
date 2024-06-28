@@ -158,7 +158,7 @@ bot.on(`callback_query`, async ctx => {
                     }
 
                     if (!prop.get(`skipCustomIndex_` + IDs + chatID)) {
-                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing nama file. Jika Anda tidak mengatur ini, maka indexing nama file akan dimulai pada angka 1.`
+                        var pesan = `❇️ <b>Tentu!</b>\nMasukkan permulaan indexing pada file. Jika Anda tidak mengatur ini, maka indexing pada file akan dimulai pada angka 1.`
                         keyb[0] = [
                             btn.text(`Lewati ⏩`, `convert_${type}_${IDs}`)
                         ]
