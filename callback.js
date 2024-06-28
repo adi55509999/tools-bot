@@ -222,39 +222,7 @@ bot.on(`callback_query`, async ctx => {
                 }
 
                 var fileExist = fileConverted ? fileConverted : fileSplit
-                var fileLength = fileExist.length
-                var count = 0
-                if (type !== 'trimVcf') {
-                    if (fileLength == 1) {
-                        var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`
-                    } else {
-                        var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
-                    }
-                } else {
-                    if (fileLength == 1) {
-                        var caps = `✅ <b>Well Done!</b>\nBerhasil membagi ${doc[1]} menjadi ${fileLength} file.`
-                    } else {
-                        var caps = `✅ <b>Well Done!</b>\nBerhasil membagi semua file menjadi ${fileLength} file.`
-                    }
-                }
-
-                await fs.promises.unlink(filePath);
-                await fs.remove(filePath)
-                for (const file of fileExist) {
-                    count++;
-                    if (fileLength == 1) {
-                        await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                    } else {
-                        if (count == fileLength) {
-                            await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                        } else {
-                            await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
-                        }
-                    }
-                    await fs.promises.unlink(file)
-                    await fs.remove(file)
-                }
-                try { await ctx.deleteMessage(pros.message_id) } catch { }
+                await helper.sendFile(fileExist, filePath, ctx, pros.message_id, type, extensi, doc, chatID, IDs, prop)
                 prop.read(`skipMaxContacts_` + IDs + chatID)
                 prop.read(`skipFileNames_` + IDs + chatID)
                 prop.read(`skipCustomName_` + IDs + chatID)

@@ -1,8 +1,6 @@
 const fs = require('fs-extra');
 const csv = require('csv-parser');
-const VCard = require('vcf');
 const xlsx = require('xlsx');
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const path = require('path');
 
 async function getName(ctx) {
@@ -147,50 +145,6 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
     return generatedFiles;
 }
 
-/**
- * THIS FEATURE WAS CANCELLED.
- */
-/*async function convertVCFtoCSV(vcfFilePath, csvFilePath, prop, chatID, IDs, customName = null) {
-    var data = await fs.readFile(vcfFilePath, 'utf-8');
-    var vCards = new VCard().parse(data);
-    var contacts = [];
-    var index = 1
-
-    if (Array.isArray(vCards)) {
-        vCards.forEach((vCard, index) => {
-            const fn = vCard.get('n') ? vCard.get('n').valueOf() : vCard.get('fn').valueOf();
-            const tel = vCard.get('tel') ? vCard.get('tel').valueOf() : '';
-
-            contacts.push({
-                name: customName ? `${customName} ${index++}` : fn.replace(/^FN:/i, '').replace(/^N:/i, '').trim(),
-                phone: tel.replace(/^TEL;TYPE:CELL:/i, '').trim()
-            });
-        });
-    } else if (vCards) {
-        const fn = vCards.get('n') ? vCards.get('n').valueOf() : vCards.get('fn').valueOf();
-        const tel = vCards.get('tel') ? vCards.get('tel').valueOf() : '';
-
-        contacts.push({
-            name: customName ? `${customName} ${index++}` : fn.replace(/^FN:/i, '').replace(/^N:/i, '').trim(),
-            phone: tel.replace(/^TEL;TYPE:CELL:/i, '').trim()
-        });
-    }
-    var cusFile = prop.get(`custom_file_` + chatID + IDs)
-    var finalCsvFilePath = cusFile ? path.join(path.dirname(csvFilePath), cusFile) : csvFilePath;
-    
-    var csvWriter = createCsvWriter({
-        path: finalCsvFilePath,
-        header: [
-            { id: 'name', title: 'Name' },
-            { id: 'phone', title: 'Phone' },
-            { id: 'email', title: 'Email' },
-            { id: 'address', title: 'Address' },
-        ]
-    });
-
-    await csvWriter.writeRecords(contacts);
-}*/
-
 async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, chatID, IDs, customName = null) {
     var contacts = [];
     var customIndex = prop.get(`custom_index_` + IDs + chatID)
@@ -269,35 +223,43 @@ async function splitVCF(filePath, fileName, chunkSize, prop, chatID, IDs) {
     return filePaths;
 }
 
-/**
- * THIS FEATURE WAS CANCELLED.
- */
-/*async function convertVCFtoTXT(vcfFilePath, txtFilePath, prop, chatID, IDs, customName = null) {
-    var data = await fs.promises.readFile(vcfFilePath, 'utf-8');
-    var vCard = VCard.parse(data)
-    var contacts = [];
-    var index = 1
-
-    if (Array.isArray(vCard)) {
-        vCard.forEach(card => {
-            const fn = card.get('n') ? card.get('n').valueOf() : card.get('fn').valueOf();
-            const tel = card.get('tel') ? card.get('tel').valueOf() : '';
-
-            contacts.push(`Name: ${customName ? `${customName} ${index++}` : fn}, Phone: ${tel}`);
-        });
-    } else if (vCard) {
-        const fn = vCard.get('n') ? vCard.get('n').valueOf() : vCard.get('fn').valueOf();
-        const tel = vCard.get('tel') ? vCard.get('tel').valueOf() : '';
-
-        contacts.push(`Name: ${customName ? `${customName} ${index++}` : fn}, Phone: ${tel}`);
+async function sendFile(fileExist, filePath, ctx, message_id, type, extensi, doc, chatID, IDs, prop) {
+    var fileLength = fileExist.length
+    var count = 0
+    if (type !== 'trimVcf') {
+        if (fileLength == 1) {
+            var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`
+        } else {
+            var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
+        }
+    } else {
+        if (fileLength == 1) {
+            var caps = `✅ <b>Well Done!</b>\nBerhasil membagi ${doc[1]} menjadi ${fileLength} file.`
+        } else {
+            var caps = `✅ <b>Well Done!</b>\nBerhasil membagi semua file menjadi ${fileLength} file.`
+        }
     }
 
-    var txtData = contacts.join('\n');
-    var cusFile = prop.get(`custom_file_` + chatID + IDs)
-    var finalTxtFilePath = cusFile ? path.join(path.dirname(txtFilePath), cusFile) : txtFilePath;
-
-    await fs.promises.writeFile(finalTxtFilePath, txtData, 'utf-8');
-}*/
+    await fs.remove(filePath)
+    for (const file of fileExist) {
+        count++;
+        if (fileLength == 1) {
+            await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
+        } else {
+            if (count == fileLength) {
+                await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
+            } else {
+                await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
+            }
+        }
+        await fs.remove(file)
+    }
+    try { await ctx.deleteMessage(message_id) } catch { }
+    prop.read(`skipMaxContacts_` + IDs + chatID)
+    prop.read(`skipFileNames_` + IDs + chatID)
+    prop.read(`skipCustomName_` + IDs + chatID)
+    prop.read(`skipCustomIndex_` + IDs + chatID)
+}
 
 const helper = {
     convertCSVtoVCF,
@@ -306,6 +268,7 @@ const helper = {
     splitVCF,
     getName,
     clearHTML,
-    createID
+    createID,
+    sendFile
 }
 module.exports = helper

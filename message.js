@@ -168,34 +168,7 @@ bot.on(`message`, async ctx => {
                 var extensi = `VCF`
                 var fileSplit = await helper.splitVCF(filePath, doc[1], maxContacts, prop, chatID, IDs)
 
-                var fileLength = fileSplit.length
-                var count = 0
-                if (fileLength == 1) {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil membagi ${doc[1]} menjadi ${fileLength} file.`
-                } else {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil membagi semua file menjadi ${fileLength} file.`
-                }
-
-                await fs.remove(filePath);
-                for (const file of fileSplit) {
-                    count++;
-                    if (fileLength == 1) {
-                        await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                    } else {
-                        if (count == fileLength) {
-                            await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                        } else {
-                            await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
-                        }
-                    }
-                    await fs.remove(file)
-                }
-
-                try { await ctx.deleteMessage(pros.message_id) } catch { }
-                prop.read(`skipMaxContacts_` + IDs + chatID)
-                prop.read(`skipFileNames_` + IDs + chatID)
-                prop.read(`skipCustomName_` + IDs + chatID)
-                prop.read(`skipCustomIndex_` + IDs + chatID)
+                await helper.sendFile(fileSplit, filePath, ctx, pros.message_id, ops, extensi, doc, chatID, IDs, prop)
             } else {
                 var pesan = `❇️ <b>Tentu!</b>\nMasukkan nama kustom yang Anda inginkan.`
                 keyb[0] = [
@@ -293,33 +266,7 @@ bot.on(`message`, async ctx => {
                     var fileConverted = await helper.convertVCFtoTXT(filePath, outputFilePath, prop, chatID, IDs, customName);
                 }*/
 
-                var fileLength = fileConverted.length
-                var count = 0
-                if (fileLength == 1) {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi ${doc[1]} ke ${extensi}.`
-                } else {
-                    var caps = `✅ <b>Well Done!</b>\nBerhasil mengkonversi semua file ke ${extensi}.`
-                }
-
-                await fs.remove(filePath);
-                for (const file of fileConverted) {
-                    count++;
-                    if (fileLength == 1) {
-                        await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                    } else {
-                        if (count == fileLength) {
-                            await ctx.replyWithDocument({ source: file }, { caption: caps, parse_mode: 'HTML' });
-                        } else {
-                            await ctx.replyWithDocument({ source: file }, { parse_mode: 'HTML' });
-                        }
-                    }
-                    await fs.remove(file)
-                }
-                try { await ctx.deleteMessage(pros.message_id) } catch { }
-                prop.read(`skipMaxContacts_` + IDs + chatID)
-                prop.read(`skipFileNames_` + IDs + chatID)
-                prop.read(`skipCustomName_` + IDs + chatID)
-                prop.read(`skipCustomIndex_` + IDs + chatID)
+                await helper.sendFile(fileConverted, filePath, ctx, pros.message_id, ops, extensi, doc, chatID, IDs, prop)
             } catch (e) {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
