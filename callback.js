@@ -185,17 +185,18 @@ bot.on(`callback_query`, async ctx => {
                 var outputFilePath;
                 var getMaxContacts = prop.get(`max_contacts_` + IDs + chatID)
                 var maxContacts = getMaxContacts ? Number(getMaxContacts) : variables.maxCon
+                var customName = prop.get(`custom_name_` + IDs + chatID)
 
                 if (type == `csvToVcf`) {
                     outputFilePath = filePath.replace('.csv', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
+                    var fileConverted = await helper.convertCSVtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, customName);
                 }
 
                 if (type == `txtToVcf`) {
                     outputFilePath = filePath.replace('.txt', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
+                    var fileConverted = await helper.convertTXTtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, customName);
                 }
 
                 /*if (type == `vcfToCsv`) {
@@ -207,7 +208,7 @@ bot.on(`callback_query`, async ctx => {
                 if (type == `xlsxToVcf`) {
                     outputFilePath = filePath.replace('.xlsx', '.vcf');
                     var extensi = `VCF`
-                    var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs);
+                    var fileConverted = await helper.convertXLSXtoVCF(filePath, outputFilePath, maxContacts, prop, chatID, IDs, customName);
                 }
 
                 /*if (type == 'vcfToTxt') {

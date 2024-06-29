@@ -101,7 +101,7 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
     var data = await fs.readFile(txtFilePath, 'utf-8');
     var lines = data.split('\n');
 
-    lines.forEach(line => {
+    lines.forEach((line, index) => {
         var [name, phone] = line.split(',');
 
         if (!phone) {
@@ -115,10 +115,12 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
             var phn = phone
         }
 
-        if (!name && customName) {
+        if ((!name && customName) || (name && customName)) {
+            var nms = customName
+        } else if (name && !customName) {
             var nms = name
         } else if (!name && !customName) {
-            var nms = `Contact`
+            var nms = `Contact ${index + 1}`
         }
 
         var contact = {
@@ -156,7 +158,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
     var sheet = workbook.Sheets[sheetName];
     var rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    rows.forEach(row => {
+    rows.forEach((row, index) => {
         var [name, phone] = row;
         if (!phone) {
             var toNumber = Number(name)
@@ -171,12 +173,13 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
             var phn = phone
         }
 
-        if (!name && customName) {
+        console.log(customName)
+        if ((!name && customName) || (name && customName)) {
             var nms = customName
         } else if (name && !customName) {
             var nms = name
         } else if (!name && !customName) {
-            var nms = `Contact`
+            var nms = `Contact ${index + 1}`
         }
 
         var contact = {
