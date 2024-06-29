@@ -38,11 +38,11 @@ function writeContactsToVCF(contacts, vcfFilePath, customName) {
     var datas = ''
 
     contacts.map((contact, index) => {
-        if (customName) { var ccnt = (index + 1 == 1) ? `${customName}` : `${customName} ${index + 1}` } else { var ccnt = contact.name ? contact.name : `Contact ${index + 1}` }
+        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = contact.name ? contact.name : `Contact ${index + 1}` }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
-        datas += `N:${ccnt}\n`
+        datas += `N:${nms}\n`
         datas += `TEL;TYPE=CELL:${contact.phone}\n`
         datas += `END:VCARD\n`;
     })
