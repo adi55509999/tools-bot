@@ -4,6 +4,7 @@ const userList = [ 5790165296, 1434949478 ]
 const maxCon = 1000
 const maxCusFile = 100
 const defaultIndex = 1
+const version = `5.3.1`
 
 const variables = {
     token,
@@ -11,6 +12,7 @@ const variables = {
     userList,
     maxCon,
     maxCusFile,
-    defaultIndex
+    defaultIndex,
+    version
 }
 module.exports = variables

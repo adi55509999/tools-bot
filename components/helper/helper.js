@@ -38,7 +38,7 @@ function writeContactsToVCF(contacts, vcfFilePath, customName) {
     var datas = ''
 
     contacts.map((contact, index) => {
-        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = contact.name ? contact.name : `Contact ${index + 1}` }
+        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = contact.name ? contact.name : `Member ${index + 1}` }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
@@ -57,8 +57,9 @@ function getNewVcfFilePath(vcfFilePath, count, prop, chatID, IDs) {
 
     var customFile = prop.get(`custom_file_` + IDs + chatID)
     var files = customFile ? `${customFile}_${count}` : `${base}_${count}`
+    var encodedFileName = Buffer.from(files, 'utf8').toString();
 
-    return path.join(dir, `${files}${ext}`);
+    return path.join(dir, `${encodedFileName}${ext}`);
 }
 
 async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chatID, IDs, customName = null) {
@@ -101,12 +102,13 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
     var data = await fs.readFile(txtFilePath, 'utf-8');
     var lines = data.split('\n');
 
-    lines.forEach((line, index) => {
+    lines.forEach(line => {
         var [name, phone] = line.split(',');
-
+        var toNumber = Number(name)
         if (!phone) {
-            var toNumber = Number(name)
             if (isNaN(toNumber) == false) {
+                var phn = name
+            } else if (String(name).startsWith('+')) {
                 var phn = name
             } else {
                 var phn = ''
@@ -117,10 +119,12 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
         if ((!name && customName) || (name && customName)) {
             var nms = customName
-        } else if (name && !customName) {
+        } else if ((name && String(name).startsWith('+')) || (!name && !customName)) {
+            var nms = null
+        } else if (name && isNaN(toNumber) == true && !String(name).startsWith('+')) {
             var nms = name
-        } else if (!name && !customName) {
-            var nms = `Contact ${index + 1}`
+        } else {
+            var nms = null
         }
 
         var contact = {
@@ -158,10 +162,10 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
     var sheet = workbook.Sheets[sheetName];
     var rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    rows.forEach((row, index) => {
+    rows.forEach(row => {
         var [name, phone] = row;
+        var toNumber = Number(name)
         if (!phone) {
-            var toNumber = Number(name)
             if (isNaN(toNumber) == false) {
                 var phn = name
             } else if (String(name).startsWith('+')) {
@@ -173,13 +177,14 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
             var phn = phone
         }
 
-        console.log(customName)
         if ((!name && customName) || (name && customName)) {
             var nms = customName
-        } else if (name && !customName) {
+        } else if ((name && String(name).startsWith('+')) || (!name && !customName)) {
+            var nms = null
+        } else if (name && isNaN(toNumber) == true && !String(name).startsWith('+')) {
             var nms = name
-        } else if (!name && !customName) {
-            var nms = `Contact ${index + 1}`
+        } else {
+            var nms = null
         }
 
         var contact = {
