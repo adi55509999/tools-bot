@@ -271,7 +271,7 @@ bot.on(`message`, async ctx => {
             } catch (e) {
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
                 keyb[0] = [
-                    btn.text(`🔄 Ulangi`, `conver_start`)
+                    btn.text(`🔄 Ulangi`, `convert_start`)
                 ]
 
                 prop.read(`session_convert_` + chatID)

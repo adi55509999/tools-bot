@@ -236,7 +236,7 @@ bot.on(`callback_query`, async ctx => {
                 console.log(e)
                 var pesan = `❌ <b>Error!</b>\n${e.message}`
                 keyb[0] = [
-                    btn.text(`🔄 Ulangi`, `conver_start`)
+                    btn.text(`🔄 Ulangi`, `convert_start`)
                 ]
 
                 prop.read(`session_convert_` + chatID)

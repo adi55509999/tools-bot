@@ -2,6 +2,11 @@ const fs = require('fs-extra');
 const csv = require('csv-parser');
 const xlsx = require('xlsx');
 const path = require('path');
+const { Telegraf } = require('telegraf')
+const variables = require('../../variables.js')
+const { markup, btn } = require('../keyboard/inline.js')
+
+const bot = new Telegraf(variables.token)
 
 async function getName(ctx) {
     var name = await clearHTML(ctx.from.first_name)
@@ -38,7 +43,7 @@ function writeContactsToVCF(contacts, vcfFilePath, customName) {
     var datas = ''
 
     contacts.map((contact, index) => {
-        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = contact.name ? contact.name : `Member ${index + 1}` }
+        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = `Member ${index + 1}` }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
@@ -104,12 +109,16 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
     lines.forEach(line => {
         var [name, phone] = line.split(',');
-        var toNumber = Number(name)
+        try { name = name.replace(/\s+/g, '') } catch { }
+        try { phone = phone.replace(/\s+/g, '') } catch { }
+
+        var phones = name ? name : phone
+        var toNumber = Number(phones)
         if (!phone) {
             if (isNaN(toNumber) == false) {
-                var phn = name
-            } else if (String(name).startsWith('+')) {
-                var phn = name
+                var phn = phones
+            } else if (String(phones).startsWith('+')) {
+                var phn = phones
             } else {
                 var phn = ''
             }
@@ -117,18 +126,8 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
             var phn = phone
         }
 
-        if ((!name && customName) || (name && customName)) {
-            var nms = customName
-        } else if ((name && String(name).startsWith('+')) || (!name && !customName)) {
-            var nms = null
-        } else if (name && isNaN(toNumber) == true && !String(name).startsWith('+')) {
-            var nms = name
-        } else {
-            var nms = null
-        }
-
         var contact = {
-            name: nms,
+            name: null,
             phone: phn
         };
         contacts.push(contact);
@@ -163,32 +162,26 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
     var rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
     rows.forEach(row => {
-        var [name, phone] = row;
-        var toNumber = Number(name)
-        if (!phone) {
+        var [phone0, phone1, phone2, phone3] = row;
+        var telp = phone0 ? phone0 : phone1 ? phone1 : phone2 ? phone2 : phone3
+
+        if (phone0 || phone1 || phone2 || phone3) {
+            var phones = telp.replace(/\s+/g, '')
+            var toNumber = Number(phones)
+
             if (isNaN(toNumber) == false) {
-                var phn = name
-            } else if (String(name).startsWith('+')) {
-                var phn = name
+                var phn = phones
+            } else if (String(phones).startsWith('+')) {
+                var phn = phones
             } else {
-                var phn = ''
+                var phn = null
             }
         } else {
-            var phn = phone
-        }
-
-        if ((!name && customName) || (name && customName)) {
-            var nms = customName
-        } else if ((name && String(name).startsWith('+')) || (!name && !customName)) {
-            var nms = null
-        } else if (name && isNaN(toNumber) == true && !String(name).startsWith('+')) {
-            var nms = name
-        } else {
-            var nms = null
+            return false
         }
 
         var contact = {
-            name: nms,
+            name: null,
             phone: phn
         };
         contacts.push(contact);
@@ -232,6 +225,23 @@ async function splitVCF(filePath, fileName, chunkSize, prop, chatID, IDs) {
 }
 
 async function sendFile(fileExist, filePath, ctx, message_id, type, extensi, doc, chatID, IDs, prop) {
+    var keyb = []
+    if (fileExist == false) {
+        var pesan = `❌ <b>Error!</b>\nTidak ada nomor telepon pada kolom horizontal 1 - 4. Salah satu dari kolom horizontal 1 - 4 setidaknya harus berisi nomor telepon.`
+        keyb[0] = [
+            btn.text(`🔄 Ulangi`, `convert_start`)
+        ]
+
+        prop.read(`session_convert_` + chatID)
+        prop.read(`session_convertMaxContacts_` + chatID)
+        prop.read(`session_convertCustomName_` + chatID)
+        prop.read(`session_convertFileNames_` + chatID)
+        prop.read(`session_convertCustomIndex_` + chatID)
+
+        await bot.telegram.editMessageText(chatID, message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+        return;
+    }
+
     var fileLength = fileExist.length
     var count = 0
     if (type !== 'trimVcf') {
