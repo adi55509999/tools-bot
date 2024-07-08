@@ -1,9 +1,14 @@
-const { bot } = require('./callback.js')
+const { bot } = require('../callback.js')
 
-const http = require('http');
+module.exports = async (req, res) => {
+    await bot.handleUpdate(JSON.parse(req.body))
+    return { statusCode: 200 }
+}
+
+/*const http = require('http');
 const express = require('express')
 const { Server } = require('socket.io');
-const variable = require('./variables.js');
+const variable = require('../variables.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,4 +29,4 @@ const port = process.env.PORT || 8000;
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-});
+});*/
