@@ -106,40 +106,37 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
     var data = await fs.readFile(txtFilePath, 'utf-8');
     var lines = data.split('\n');
+    if (!lines) return false
 
-    lines.forEach(line => {
-        var [name, phone] = line.split(',');
-        try { name = name.replace(/\s+/g, '') } catch { }
-        try { phone = phone.replace(/\s+/g, '') } catch { }
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i]
+        if (line == '' || !line) { } else {
+            try { var telp = line.replace(/\/r/g, '').replace(/\s+/g, '') } catch { var telp = line.replace(/\/r/g, '') }
+            var toNumber = Number(telp)
 
-        var phones = name ? name : phone
-        var toNumber = Number(phones)
-        if (!phone) {
             if (isNaN(toNumber) == false) {
-                var phn = phones
-            } else if (String(phones).startsWith('+')) {
-                var phn = phones
+                var phn = telp
+            } else if (String(telp).startsWith('+')) {
+                var phn = telp
             } else {
-                var phn = ''
+                var phn = null
             }
-        } else {
-            var phn = phone
-        }
 
-        var contact = {
-            name: null,
-            phone: phn
-        };
-        contacts.push(contact);
+            var contact = {
+                name: null,
+                phone: phn
+            };
+            contacts.push(contact);
 
-        if (contacts.length === maxContacts) {
-            var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-            writeContactsToVCF(contacts, newVcfFilePath, customName);
-            generatedFiles.push(newVcfFilePath);
-            contacts.length = 0;
-            fileCount++;
+            if (contacts.length === maxContacts) {
+                var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
+                writeContactsToVCF(contacts, newVcfFilePath, customName);
+                generatedFiles.push(newVcfFilePath);
+                contacts.length = 0;
+                fileCount++;
+            }
         }
-    });
+    }
 
     if (contacts.length > 0) {
         var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
@@ -166,7 +163,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
         var telp = phone0 ? phone0 : phone1 ? phone1 : phone2 ? phone2 : phone3
 
         if (phone0 || phone1 || phone2 || phone3) {
-            var phones = telp.replace(/\s+/g, '')
+            try { var phones = telp.replace(/\s+/g, '') } catch { var phones = telp }
             var toNumber = Number(phones)
 
             if (isNaN(toNumber) == false) {
@@ -227,7 +224,7 @@ async function splitVCF(filePath, fileName, chunkSize, prop, chatID, IDs) {
 async function sendFile(fileExist, filePath, ctx, message_id, type, extensi, doc, chatID, IDs, prop) {
     var keyb = []
     if (fileExist == false) {
-        var pesan = `❌ <b>Error!</b>\nTidak ada nomor telepon pada kolom horizontal 1 - 4. Salah satu dari kolom horizontal 1 - 4 setidaknya harus berisi nomor telepon.`
+        var pesan = `❌ <b>Error!</b>\nTidak ada nomor telepon pada file yang Anda kirim.`
         keyb[0] = [
             btn.text(`🔄 Ulangi`, `convert_start`)
         ]
