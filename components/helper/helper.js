@@ -44,11 +44,13 @@ function writeContactsToVCF(contacts, vcfFilePath, customName) {
 
     contacts.map((contact, index) => {
         if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = `Member ${index + 1}` }
+        var phone = contact.phone
+        if (phone) { var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
         datas += `N:${nms}\n`
-        datas += `TEL;TYPE=CELL:${contact.phone}\n`
+        datas += `TEL;TYPE=CELL:${telp}\n`
         datas += `END:VCARD\n`;
     })
 
@@ -105,8 +107,8 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
     var generatedFiles = [];
 
     var data = await fs.readFile(txtFilePath, 'utf-8');
+    if (!data || data == '') return false
     var lines = data.split('\n');
-    if (!lines) return false
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i]
