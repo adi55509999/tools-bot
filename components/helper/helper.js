@@ -45,7 +45,7 @@ function writeContactsToVCF(contacts, vcfFilePath, customName) {
     contacts.map((contact, index) => {
         if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = `Member ${index + 1}` }
         var phone = contact.phone
-        if (phone) { var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone }
+        if (phone) { var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone } else { var telp = phone }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
