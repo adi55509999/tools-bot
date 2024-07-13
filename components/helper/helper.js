@@ -39,11 +39,16 @@ async function createID(length) {
     return r;
 }
 
-function writeContactsToVCF(contacts, vcfFilePath, customName) {
+function writeContactsToVCF(contacts, vcfFilePath, customName, chatID, IDs, prop) {
     var datas = ''
+    var getLastIndex = prop.get(`last_index_` + IDs + chatID)
+    if (getLastIndex) { var lastIndex = Number(getLastIndex) + 1 }
 
-    contacts.map((contact, index) => {
-        if (customName) { var nms = `${customName} ${index + 1}` } else { var nms = `Member ${index + 1}` }
+    contacts.map((contact, ind) => {
+        var index = lastIndex ? lastIndex++ : ind + 1
+
+        if (customName) { var nms = `${customName} ${index}` } else { var nms = `Member ${index}` }
+        prop.set(`last_index_` + IDs + chatID, index++)
         var phone = contact.phone
         if (phone) { var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone } else { var telp = phone }
 
@@ -82,7 +87,7 @@ async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chat
                 contacts.push(row);
                 if (contacts.length === maxContacts) {
                     var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-                    writeContactsToVCF(contacts, newVcfFilePath, customName);
+                    writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
                     generatedFiles.push(newVcfFilePath);
                     contacts.length = 0;
                     fileCount++;
@@ -91,7 +96,7 @@ async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chat
             .on('end', () => {
                 if (contacts.length > 0) {
                     var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-                    writeContactsToVCF(contacts, newVcfFilePath, customName);
+                    writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
                     generatedFiles.push(newVcfFilePath);
                 }
                 resolve(generatedFiles);
@@ -132,7 +137,7 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
             if (contacts.length === maxContacts) {
                 var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-                writeContactsToVCF(contacts, newVcfFilePath, customName);
+                writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
                 generatedFiles.push(newVcfFilePath);
                 contacts.length = 0;
                 fileCount++;
@@ -142,7 +147,7 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
     if (contacts.length > 0) {
         var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-        writeContactsToVCF(contacts, newVcfFilePath, customName);
+        writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
         generatedFiles.push(newVcfFilePath);
     }
 
@@ -187,7 +192,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
 
         if (contacts.length === maxContacts) {
             var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-            writeContactsToVCF(contacts, newVcfFilePath, customName);
+            writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
             generatedFiles.push(newVcfFilePath);
             contacts.length = 0;
             fileCount++;
@@ -196,7 +201,7 @@ async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, ch
 
     if (contacts.length > 0) {
         var newVcfFilePath = getNewVcfFilePath(vcfFilePath, fileCount, prop, chatID, IDs);
-        writeContactsToVCF(contacts, newVcfFilePath, customName);
+        writeContactsToVCF(contacts, newVcfFilePath, customName, chatID, IDs, prop);
         generatedFiles.push(newVcfFilePath);
     }
 

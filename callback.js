@@ -168,7 +168,7 @@ bot.on(`callback_query`, async ctx => {
 
                         await ctx.editMessageText(pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
                         await ctx.answerCbQuery('')
-                        prop.read(`session_convertFileNames_` + chatID)
+                        prop.read(`session_convertCustomName_` + chatID)
                         prop.set(`skipCustomIndex_` + IDs + chatID, true)
                         prop.set(`session_convertCustomIndex_` + chatID, IDs)
                         return;
