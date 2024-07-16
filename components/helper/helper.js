@@ -68,7 +68,9 @@ function getNewVcfFilePath(vcfFilePath, count, prop, chatID, IDs) {
     var dir = path.dirname(vcfFilePath);
 
     var customFile = prop.get(`custom_file_` + IDs + chatID)
-    var files = customFile ? `${customFile}_${count}` : `${base}_${count}`
+    count = (count == 1) ? `` : `_${count}`
+
+    var files = customFile ? `${customFile}${count}` : `${base}${count}`
     var encodedFileName = Buffer.from(files, 'utf8').toString();
 
     return path.join(dir, `${encodedFileName}${ext}`);
