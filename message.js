@@ -113,7 +113,7 @@ bot.on(`message`, async ctx => {
                 btn.text(`Ubah VCF ke TXT`, `convert_vcfToTxt_${IDs}`)
             ]*/
 
-            prop.set(`files_` + IDs + chatID, `${doc.file_id},${doc.file_name},${doc.mime_type}`)
+            prop.set(`files_` + IDs + chatID, `${doc.file_id}<>${doc.file_name}<>${doc.mime_type}`)
             prop.read(`session_convert_` + chatID)
             await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
             return;
@@ -155,7 +155,7 @@ bot.on(`message`, async ctx => {
             var ops = prop.get(`selection_` + IDs + chatID)
 
             if (ops == 'trimVcf') {
-                var doc = files.split(',')
+                var doc = files.split('<>')
                 var fileLink = (await bot.telegram.getFileLink(doc[0])).href
                 var filePath = path.join(__dirname, 'downloads', doc[1]);
                 fs.ensureDirSync(path.dirname(filePath));
@@ -224,7 +224,7 @@ bot.on(`message`, async ctx => {
                 if (Number(text) < 1) return await bot.telegram.editMessageText(chatID, pros.message_id, null, `⚠️ Angka tidak boleh kurang dari 1.`)
                 var ops = prop.get(`selection_` + IDs + chatID)
 
-                var doc = files.split(',')
+                var doc = files.split('<>')
                 var fileLink = (await bot.telegram.getFileLink(doc[0])).href
                 var filePath = path.join(__dirname, 'downloads', doc[1]);
                 fs.ensureDirSync(path.dirname(filePath));
@@ -280,6 +280,7 @@ bot.on(`message`, async ctx => {
                 prop.read(`session_convertFileNames_` + chatID)
                 prop.read(`session_convertCustomIndex_` + chatID)
                 await bot.telegram.editMessageText(chatID, pros.message_id, null, pesan, { parse_mode: 'HTML', reply_markup: markup.inlineKeyboard(keyb) })
+                console.log(e)
             }
         }
         /**

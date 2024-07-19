@@ -52,7 +52,7 @@ bot.on(`callback_query`, async ctx => {
             
             try {
                 var pros = await ctx.editMessageText(`⏳ Memproses...`)
-                var doc = files.split(',')
+                var doc = files.split('<>')
                 var mimeType = doc[2].toLowerCase()
 
                 if (type.includes('csvToVcf')) {
