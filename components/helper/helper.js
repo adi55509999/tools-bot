@@ -120,14 +120,19 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i]
-        if (line == '' || !line) { } else {
-            try { var telp = line.replace(/\/r/g, '').replace(/\s+/g, '') } catch { var telp = line.replace(/\/r/g, '') }
+        var telp = line.trim()
+
+        if (telp.length <= 2) { } else {
             var toNumber = Number(telp)
 
-            if (isNaN(toNumber) == false) {
-                var phn = telp
-            } else if (String(telp).startsWith('+')) {
-                var phn = telp
+            if (telp) {
+                if (isNaN(toNumber) == false) {
+                    var phn = telp
+                } else if (String(telp).startsWith('+')) {
+                    var phn = telp
+                } else if (isNaN(toNumber) == true && !telp.startsWith('+')) {
+                    var phn = telp
+                }    
             } else {
                 var phn = null
             }
