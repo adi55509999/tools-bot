@@ -50,7 +50,8 @@ function writeContactsToVCF(contacts, vcfFilePath, customName, chatID, IDs, prop
         if (customName) { var nms = `${customName} ${index}` } else { var nms = `Member ${index}` }
         prop.set(`last_index_` + IDs + chatID, index++)
         var phone = contact.phone
-        if (phone) { var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone } else { var telp = phone }
+
+        if (phone) { phone = phone.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/[\s\uFEFF\xA0]+/g, ''); var telp = (!String(phone).startsWith('+')) ? `+${phone}` : phone } else { var telp = phone }
 
         datas += `BEGIN:VCARD\n`
         datas += `VERSION:3.0\n`
@@ -119,8 +120,7 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
     var lines = data.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
-        var line = lines[i]
-        var telp = line.trim()
+        var telp = lines[i]
 
         if (telp.length <= 2) { } else {
             var toNumber = Number(telp)
