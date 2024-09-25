@@ -65,8 +65,8 @@ function getNewVcfFilePath(vcfFilePath, count, prop, chatID, IDs) {
     var customFile = prop.get(`custom_file_` + IDs + chatID)
     var customIndex = Number(prop.get(`custom_index_` + IDs + chatID))
 
-    if (customIndex) { count = `_${customIndex + count - 1}` } else { count = (count == 1) ? `` : `_${count}` };
-    var files = customFile ? `${customFile}${count}` : `${base}${count}`
+    if (customIndex) { var ccnt = `_${customIndex + count}` } else { var ccnt = (count == 1) ? `` : `_${count}` };
+    var files = customFile ? `${customFile}${ccnt}` : `${base}${ccnt}`
     var encodedFileName = Buffer.from(files, 'utf8').toString();
 
     return path.join(dir, `${encodedFileName}${ext}`);
@@ -74,8 +74,7 @@ function getNewVcfFilePath(vcfFilePath, count, prop, chatID, IDs) {
 
 async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chatID, IDs, customName = null) {
     var contacts = [];
-    var customIndex = prop.get(`custom_index_` + IDs + chatID)
-    var fileCount = customIndex ? Number(customIndex) : 1
+    var fileCount = 1
     var generatedFiles = [];
 
     return new Promise((resolve, reject) => {
@@ -105,8 +104,7 @@ async function convertCSVtoVCF(csvFilePath, vcfFilePath, maxContacts, prop, chat
 
 async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chatID, IDs, customName = null) {
     var contacts = [];
-    var customIndex = prop.get(`custom_index_` + IDs + chatID)
-    var fileCount = customIndex ? Number(customIndex) : 1
+    var fileCount = 1
     var generatedFiles = [];
 
     var data = await fs.readFile(txtFilePath, 'utf-8');
@@ -154,8 +152,7 @@ async function convertTXTtoVCF(txtFilePath, vcfFilePath, maxContacts, prop, chat
 
 async function convertXLSXtoVCF(xlsxFilePath, vcfFilePath, maxContacts, prop, chatID, IDs, customName = null) {
     var contacts = [];
-    var customIndex = prop.get(`custom_index_` + IDs + chatID)
-    var fileCount = customIndex ? Number(customIndex) : 1
+    var fileCount = 1
     var generatedFiles = [];
 
     var workbook = xlsx.readFile(xlsxFilePath);
