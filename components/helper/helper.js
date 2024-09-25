@@ -65,7 +65,7 @@ function getNewVcfFilePath(vcfFilePath, count, prop, chatID, IDs) {
     var customFile = prop.get(`custom_file_` + IDs + chatID)
     var customIndex = Number(prop.get(`custom_index_` + IDs + chatID))
 
-    if (customIndex) { var ccnt = `_${customIndex + count}` } else { var ccnt = (count == 1) ? `` : `_${count}` };
+    if (customIndex) { var ccnt = `_${customIndex + count - 1}` } else { var ccnt = (count == 1) ? `` : `_${count}` };
     var files = customFile ? `${customFile}${ccnt}` : `${base}${ccnt}`
     var encodedFileName = Buffer.from(files, 'utf8').toString();
 
