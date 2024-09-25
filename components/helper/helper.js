@@ -231,6 +231,10 @@ async function sendFile(fileExist, filePath, ctx, message_id, type, extensi, doc
             btn.text(`🔄 Ulangi`, `convert_start`)
         ]
 
+        prop.read(`skipMaxContacts_` + IDs + chatID)
+        prop.read(`skipFileNames_` + IDs + chatID)
+        prop.read(`skipCustomName_` + IDs + chatID)
+        prop.read(`skipCustomIndex_` + IDs + chatID)
         prop.read(`session_convert_` + chatID)
         prop.read(`session_convertMaxContacts_` + chatID)
         prop.read(`session_convertCustomName_` + chatID)
@@ -276,6 +280,11 @@ async function sendFile(fileExist, filePath, ctx, message_id, type, extensi, doc
     prop.read(`skipFileNames_` + IDs + chatID)
     prop.read(`skipCustomName_` + IDs + chatID)
     prop.read(`skipCustomIndex_` + IDs + chatID)
+    prop.read(`session_convert_` + chatID)
+    prop.read(`session_convertMaxContacts_` + chatID)
+    prop.read(`session_convertCustomName_` + chatID)
+    prop.read(`session_convertFileNames_` + chatID)
+    prop.read(`session_convertCustomIndex_` + chatID)
 }
 
 const helper = {
