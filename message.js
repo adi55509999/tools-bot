@@ -233,7 +233,7 @@ bot.on(`message`, async ctx => {
                 await fs.writeFile(filePath, response.data);
                 var outputFilePath;
                 var getMaxContacts = prop.get(`max_contacts_` + IDs + chatID)
-                var maxContacts = getMaxContacts ? Number(getMaxContacts) : variables.maxCon
+                var maxContacts = getMaxContacts ? Number(getMaxContacts) : 999999999999999
                 var customName = prop.get(`custom_name_` + IDs + chatID)
 
                 prop.set(`custom_index_` + IDs + chatID, text)

@@ -99,7 +99,7 @@ bot.on(`callback_query`, async ctx => {
                 }
 
                 if (!prop.get(`skipMaxContacts_` + IDs + chatID)) {
-                    var pesan = `❇️ <b>Oke!</b>\nMasukkan jumlah kontak per-file yang Anda inginkan. ${(type == 'trimVcf') ? `Anda tidak dapat melewati bagian ini` : `Jika ini dilewati, maka akan menggunakan bawaan ${variables.maxCon} kontak per-file.`}`
+                    var pesan = `❇️ <b>Oke!</b>\nMasukkan jumlah kontak per-file yang Anda inginkan. ${(type == 'trimVcf') ? `Anda tidak dapat melewati bagian ini` : `Jika ini dilewati, maka tidak akan ada batasan kontek per-file.`}`
                     pesan += `\n\nℹ️ Anda hanya bisa menggunakan angka rentang 1 - ${variables.maxCon}.`
                     if (type !== 'trimVcf') {
                         keyb[0] = [
@@ -184,7 +184,7 @@ bot.on(`callback_query`, async ctx => {
                 await fs.writeFile(filePath, response.data);
                 var outputFilePath;
                 var getMaxContacts = prop.get(`max_contacts_` + IDs + chatID)
-                var maxContacts = getMaxContacts ? Number(getMaxContacts) : variables.maxCon
+                var maxContacts = getMaxContacts ? Number(getMaxContacts) : 999999999999999
                 var customName = prop.get(`custom_name_` + IDs + chatID)
 
                 if (type == `csvToVcf`) {

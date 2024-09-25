@@ -22,9 +22,7 @@ function fohuefohef() {
 }
 
 function heifhee() {
-    var con = fs.readFileSync('./downloads/contact.vcf', 'utf-8')
-    console.log(con)
-    helper.splitVCF(con, 2)
+    console.log(999999999999)
 }
 
 heifhee()
